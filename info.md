@@ -68,3 +68,94 @@ So, the parameters that are "pass-by-reference" (passed by pointer) are:
 4.  `int *nResult` (Used as **output** to store the size of the sum)
 
 The other two parameters, `int n1` and `int n2`, are passed by **value**. This means the function just gets a *copy* of their values, and any changes to `n1` or `n2` *inside* the function would not affect the variables back in `main`.
+
+-----------------------------------------------------------
+AIzaSyBv0ULYE507ajRfYTUKfaWrpfEj9V9yGFk : gemini key
+
+**"NPX / No-Install" Plan**.
+### Phase 1: In the Lab 
+npx --version
+
+**Step 2: Go "Incognito"**
+To make sure your commands aren't saved, run this:
+
+unset HISTFILE
+
+**Step 3: Set Your API Key**
+
+export GEMINI_API_KEY='AIzaSyBv0ULYE507ajRfYTUKfaWrpfEj9V9yGFk'
+
+### Phase 2: In the Lab (How to Use the AI)
+**Step 1: Start the AI Chat**
+Run this command. It might take a moment as `npx` downloads the tool to a temp folder.
+
+npx -p @google/gemini-cli gemini
+
+**Step 2: Chat with Gemini**
+This will start an **interactive chat** right in your terminal (e.g., `>>>`). You can now ask it for anything.
+
+  * `>>> Write a C function to implement a stack using a linked list.`
+  * `>>> I got this error: 'segmentation fault (core dumped)'. What are the common causes for this in C?`
+  * `>>> [Paste your buggy code here] ... find the memory leak in this code.`
+
+**Step 3: Quit the AI Chat**
+When you're done getting help, just type:
+
+/quit
+
+### Phase 3: In the Lab (The Cleanup)
+
+When your lab is over and you're ready to leave:
+
+1.  **Delete Your Code (Optional but Safe):**
+    If you `git clone`-d your code, you can delete the folder:
+    `rm -rf .my-secret-dsa`
+
+2.  **Clear the Session History:**
+    history -c
+    ```
+
+3.  **Exit:**
+
+    exit
+-----------------------------------------------
+
+Day 1 (One-Time Setup):
+
+unset HISTFILE
+
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+source ~/.bashrc
+
+nvm install node (You will never have to do these 4 steps again on this PC, unless the home directory is wiped)
+
+Every Lab Day (Your Workflow):
+
+unset HISTFILE
+
+export GEMINI_API_KEY="YOUR_API_KEY"
+
+npx -p @google/gemini-cli gemini
+
+(Chat with the AI...)
+
+/quit
+
+history -c
+
+exit
+
+-----------------
+You can disable the banner and other tips by creating a settings file. This is a one-time setup in the lab.
+
+The first time you're in the lab, run this command to create the settings directory:
+
+Bash
+
+mkdir -p ~/.gemini
+Then, create the settings file and add the "quiet" settings:
+
+Bash
+
+echo '{ "hideTips": true, "hideBanner": true }' > ~/.gemini/settings.json
