@@ -8,8 +8,7 @@ struct Node {
     struct Node *left, *right;
 };
 
-// Function to create a new node
-struct Node* createNode(char *word, char *meaning) {
+struct Node* createNode(char word[], char meaning[]) {
     struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
     strcpy(newNode->word, word);
     strcpy(newNode->meaning, meaning);
@@ -17,58 +16,35 @@ struct Node* createNode(char *word, char *meaning) {
     return newNode;
 }
 
-// Insert a new word-meaning pair
-struct Node* insert(struct Node* root, char *word, char *meaning) {
+struct Node* findMin(struct Node* node) {
+    struct Node* current = node;
+    while (current && current->left != NULL)
+        current = current->left;
+    return current;
+}
+
+struct Node* insert(struct Node* root, char word[], char meaning[]) {
     if (root == NULL)
         return createNode(word, meaning);
-
-    int cmp = strcmp(word, root->word);
-    if (cmp < 0)
+    
+    if (strcmp(word, root->word) < 0)
         root->left = insert(root->left, word, meaning);
-    else if (cmp > 0)
+    else if (strcmp(word, root->word) > 0)
         root->right = insert(root->right, word, meaning);
     else
-        printf("Word already exists! Updating meaning...\n"), strcpy(root->meaning, meaning);
-    
+        printf("Word '%s' already exists in dictionary.\n", word);
+
     return root;
 }
 
-// Search for a word
-struct Node* search(struct Node* root, char *word) {
-    if (root == NULL)
-        return NULL;
+struct Node* deleteNode(struct Node* root, char word[]) {
+    if (root == NULL) return root;
 
-    int cmp = strcmp(word, root->word);
-    if (cmp == 0)
-        return root;
-    else if (cmp < 0)
-        return search(root->left, word);
-    else
-        return search(root->right, word);
-}
-
-// Find minimum node (used in delete)
-struct Node* findMin(struct Node* root) {
-    while (root && root->left != NULL)
-        root = root->left;
-    return root;
-}
-
-// Delete a word from dictionary
-struct Node* deleteWord(struct Node* root, char *word) {
-    if (root == NULL) {
-        printf("Word not found!\n");
-        return NULL;
-    }
-
-    int cmp = strcmp(word, root->word);
-
-    if (cmp < 0)
-        root->left = deleteWord(root->left, word);
-    else if (cmp > 0)
-        root->right = deleteWord(root->right, word);
+    if (strcmp(word, root->word) < 0)
+        root->left = deleteNode(root->left, word);
+    else if (strcmp(word, root->word) > 0)
+        root->right = deleteNode(root->right, word);
     else {
-        // Node to delete found
         if (root->left == NULL) {
             struct Node* temp = root->right;
             free(root);
@@ -79,17 +55,51 @@ struct Node* deleteWord(struct Node* root, char *word) {
             return temp;
         }
 
-        // Node with two children
         struct Node* temp = findMin(root->right);
+
         strcpy(root->word, temp->word);
         strcpy(root->meaning, temp->meaning);
-        root->right = deleteWord(root->right, temp->word);
-    }
 
+        root->right = deleteNode(root->right, temp->word);
+    }
     return root;
 }
 
-// Display dictionary in sorted (alphabetical) order
+void search(struct Node* root, char word[]) {
+    if (root == NULL) {
+        printf("Word '%s' not found!\n", word);
+        return;
+    }
+
+    if (strcmp(word, root->word) == 0)
+        printf("Meaning of '%s' is: %s\n", word, root->meaning);
+    else if (strcmp(word, root->word) < 0)
+        search(root->left, word);
+    else
+        search(root->right, word);
+}
+
+void update(struct Node* root, char word[]) {
+    if (root == NULL) {
+        printf("Word '%s' not found, cannot update.\n", word);
+        return;
+    }
+
+    if (strcmp(word, root->word) == 0) {
+        char newMeaning[100];
+        printf("Enter new meaning for '%s': ", word);
+        fgets(newMeaning, sizeof(newMeaning), stdin);
+        newMeaning[strcspn(newMeaning, "\n")] = '\0';
+
+        strcpy(root->meaning, newMeaning);
+        printf("Meaning updated successfully.\n");
+    }
+    else if (strcmp(word, root->word) < 0)
+        update(root->left, word);
+    else
+        update(root->right, word);
+}
+
 void inorder(struct Node* root) {
     if (root != NULL) {
         inorder(root->left);
@@ -98,65 +108,77 @@ void inorder(struct Node* root) {
     }
 }
 
-// Main Function
 int main() {
     struct Node* root = NULL;
     int choice;
     char word[50], meaning[100];
-    struct Node* temp;
-
-    while (1) {
-        printf("\n=== DICTIONARY USING BST ===\n");
-        printf("1. Insert Word\n2. Search Word\n3. Delete Word\n4. Display Dictionary\n5. Exit\n");
+    
+    do {
+        printf("\n--- Dictionary Menu ---\n");
+        printf("1. Insert Word\n2. Search Word\n3. Display Dictionary\n4. Update Word\n5. Delete Word\n6. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
-        getchar(); // clear buffer (still needed after scanf)
+        getchar(); 
 
         switch (choice) {
             case 1:
-                printf("Enter word: ");
-                fgets(word, 50, stdin); // Changed from gets
-                word[strcspn(word, "\n")] = 0; // Remove newline
+                printf("Enter Word: ");
+                fgets(word, sizeof(word), stdin);
+                word[strcspn(word, "\n")] = '\0'; 
 
-                printf("Enter meaning: ");
-                fgets(meaning, 100, stdin); // Changed from gets
-                meaning[strcspn(meaning, "\n")] = 0; // Remove newline
-                
+                printf("Enter Meaning: ");
+                fgets(meaning, sizeof(meaning), stdin);
+                meaning[strcspn(meaning, "\n")] = '\0'; 
+
                 root = insert(root, word, meaning);
                 break;
-
             case 2:
-                printf("Enter word to search: ");
-                fgets(word, 50, stdin); // Changed from gets
-                word[strcspn(word, "\n")] = 0; // Remove newline
-
-                temp = search(root, word);
-                if (temp)
-                    printf("Meaning of '%s': %s\n", temp->word, temp->meaning);
+                printf("Enter Word to Search: ");
+                fgets(word, sizeof(word), stdin);
+                word[strcspn(word, "\n")] = '\0'; 
+                
+                if (root == NULL)
+                    printf("Dictionary is empty.\n");
                 else
-                    printf("Word not found!\n");
+                    search(root, word);
                 break;
-
             case 3:
-                printf("Enter word to delete: ");
-                fgets(word, 50, stdin); // Changed from gets
-                word[strcspn(word, "\n")] = 0; // Remove newline
-
-                root = deleteWord(root, word);
+                printf("\n--- Dictionary Words (Alphabetical) ---\n");
+                if (root == NULL)
+                    printf("Dictionary is empty.\n");
+                else
+                    inorder(root);
                 break;
-
             case 4:
-                printf("\n--- Dictionary (Alphabetical Order) ---\n");
-                inorder(root);
+                printf("Enter Word to Update: ");
+                fgets(word, sizeof(word), stdin);
+                word[strcspn(word, "\n")] = '\0'; 
+                
+                if (root == NULL)
+                    printf("Dictionary is empty.\n");
+                else
+                    update(root, word);
                 break;
-
             case 5:
+                printf("Enter Word to Delete: ");
+                fgets(word, sizeof(word), stdin);
+                word[strcspn(word, "\n")] = '\0'; 
+                
+                if (root == NULL)
+                    printf("Dictionary is empty.\n");
+                else {
+                    root = deleteNode(root, word);
+                    printf("'%s' deleted successfully (if it existed).\n", word);
+                }
+                break;
+            case 6:
+                printf("Exiting\n");
                 exit(0);
-
             default:
-                printf("Invalid choice!\n");
+                printf("Invalid choice. Try again.\n");
         }
-    }
-
+    } while (1);
+    
     return 0;
 }
+

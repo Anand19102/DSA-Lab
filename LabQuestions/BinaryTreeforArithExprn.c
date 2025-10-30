@@ -1,73 +1,77 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<ctype.h> // for isdigit()
 
-// Node of expression tree
+// Tree node structure
 struct Node {
     char data;
     struct Node *left, *right;
 };
 
-// Stack for nodes
-#define MAX 100
-struct Node* stack[MAX];
-int top = -1;
+// Stack node structure
+struct Stack {
+    struct Node* data;
+    struct Stack* next;
+};
 
-// Stack operations
-void push(struct Node* node) {
-    if (top == MAX - 1) {
-        printf("Stack overflow\n");
-        return;
-    }
-    stack[++top] = node;
-}
+struct Stack* top = NULL;
 
-struct Node* pop() {
-    if (top == -1) {
-        printf("Stack underflow\n");
-        return NULL;
-    }
-    return stack[top--];
-}
-
-// Check if character is operator
-int isOperator(char c) {
-    return (c == '+' || c == '-' || c == '*' || c == '/');
-}
-
-// Create new node
-struct Node* createNode(char data) {
+// Function to create new tree node
+struct Node* createNode(char value) {
     struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->data = data;
+    newNode->data = value;
     newNode->left = newNode->right = NULL;
     return newNode;
 }
 
-// Build expression tree from postfix expression
-struct Node* buildExpressionTree(char postfix[]) {
-    struct Node* node, *left, *right;
-    int i;
-    for (i = 0; postfix[i] != '\0'; i++) {
-        char c = postfix[i];
-
-        if (isalnum(c)) { // operand
-            node = createNode(c);
-            push(node);
-        } else if (isOperator(c)) { // operator
-            node = createNode(c);
-            right = pop();
-            left = pop();
-            node->left = left;
-            node->right = right;
-            push(node);
-        }
-    }
-
-    return pop(); // root of expression tree
+// Stack operations
+void push(struct Node* treeNode) {
+    struct Stack* temp = (struct Stack*)malloc(sizeof(struct Stack));
+    temp->data = treeNode;
+    temp->next = top;
+    top = temp;
 }
 
-// Preorder traversal → prefix
+struct Node* pop() {
+    if (top == NULL) return NULL;
+    struct Stack* temp = top;
+    struct Node* res = top->data;
+    top = top->next;
+    free(temp);
+    return res;
+}
+
+// Create Expression Tree from postfix expression
+struct Node* createExpressionTree(char postfix[]) {
+    int i = 0;
+    char symbol;
+    while ((symbol = postfix[i]) != '\0') {
+        if (isalnum(symbol)) { // Operand
+            struct Node* operandNode = createNode(symbol);
+            push(operandNode);
+        } else { // Operator
+            struct Node* operatorNode = createNode(symbol);
+            operatorNode->right = pop();
+            operatorNode->left = pop();
+            push(operatorNode);
+        }
+        i++;
+    }
+    return pop(); // Root node
+}
+
+// Inorder traversal (infix)
+void inorder(struct Node* root) {
+    if (root != NULL) {
+        if(root->left && root->right) printf("(");
+        inorder(root->left);
+        printf("%c", root->data);
+        inorder(root->right);
+        if(root->left && root->right) printf(")");
+    }
+}
+
+// Preorder traversal (prefix)
 void preorder(struct Node* root) {
     if (root != NULL) {
         printf("%c", root->data);
@@ -76,7 +80,7 @@ void preorder(struct Node* root) {
     }
 }
 
-// Postorder traversal → postfix
+// Postorder traversal 
 void postorder(struct Node* root) {
     if (root != NULL) {
         postorder(root->left);
@@ -85,34 +89,60 @@ void postorder(struct Node* root) {
     }
 }
 
-// Inorder traversal → for checking tree correctness
-void inorder(struct Node* root) {
-    if (root != NULL) {
-        inorder(root->left);
-        printf("%c", root->data);
-        inorder(root->right);
-    }
-}
-
 int main() {
+    struct Node* root = NULL;
+    int choice;
     char postfix[100];
 
-    printf("Enter a postfix expression (operands single letters or digits): ");
-    scanf("%s", postfix);
+    do {
+        printf("\nMenu\n----\n");
+        printf("1. Create Expression Tree\n");
+        printf("2. Inorder Traversal (Infix Expression)\n");
+        printf("3. Preorder Traversal (Prefix Expression)\n");
+        printf("4. Postorder Traversal (Postfix Expression)\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); 
+        switch(choice) {
+            case 1:
+                printf("Enter postfix expression: ");
+                scanf("%s", postfix);
+                root = createExpressionTree(postfix);
+                printf("Expression Tree Created Successfully.\n");
+                break;
+            case 2:
+                if(root == NULL) printf("Create the tree first!\n");
+                else {
+                    printf("Inorder Traversal (Infix): ");
+                    inorder(root);
+                    printf("\n");
+                }
+                break;
+            case 3:
+                if(root == NULL) printf("Create the tree first!\n");
+                else {
+                    printf("Preorder Traversal (Prefix): ");
+                    preorder(root);
+                    printf("\n");
+                }
+                break;
+            case 4:
+                if(root == NULL) printf("Create the tree first!\n");
+                else {
+                    printf("Postorder Traversal (Postfix): ");
+                    postorder(root);
+                    printf("\n");
+                }
+                break;
+            case 5:
+                printf("Exiting program.\n");
+                exit(0);
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
 
-    struct Node* root = buildExpressionTree(postfix);
-
-    printf("Inorder (for checking tree correctness): ");
-    inorder(root);
-    printf("\n");
-
-    printf("Prefix expression: ");
-    preorder(root);
-    printf("\n");
-
-    printf("Postfix expression: ");
-    postorder(root);
-    printf("\n");
+    } while(1);
 
     return 0;
 }

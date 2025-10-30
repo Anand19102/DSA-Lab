@@ -1,31 +1,28 @@
 #include <stdio.h>
-#include <ctype.h>   // For isdigit(), isalpha()
+#include <ctype.h>
 #include <string.h>
 #include <math.h>
 
 #define MAX 100
 
-// Stack for characters (operators)
 char stack[MAX];
 int top = -1;
 
-// Stack Functions
 void push(char value) {
     if (top == MAX - 1) {
-        printf("Stack Overflow! Cannot push %c\n", value);
+        printf("Stack Overflow cannot push %c\n", value);
     } else {
-        top = top + 1;       // increment top
-        stack[top] = value;  // place element
+        top = top + 1;
+        stack[top] = value;
     }
 }
 
 char pop() {
     if (top == -1) {
-        printf("Stack Underflow!\n");
         return '\0';
     } else {
-        char value = stack[top]; // take top element
-        top = top - 1;           // decrement top
+        char value = stack[top];
+        top = top - 1;
         return value;
     }
 }
@@ -35,10 +32,12 @@ int isEmpty() {
 }
 
 char peek() {
+    if (isEmpty()) {
+        return '\0';
+    }
     return stack[top];
 }
 
-// Function to get precedence of operators
 int precedence(char c) {
     if (c == '^') return 3;
     else if (c == '*' || c == '/') return 2;
@@ -46,7 +45,6 @@ int precedence(char c) {
     else return 0;
 }
 
-// Convert infix to postfix
 void infixToPostfix(char infix[], char postfix[]) {
     int i, j = 0;
     char c;
@@ -54,46 +52,45 @@ void infixToPostfix(char infix[], char postfix[]) {
     for (i = 0; infix[i] != '\0'; i++) {
         c = infix[i];
 
-        // If operand (letter or number), add to postfix
         if (isalnum(c)) {
             postfix[j] = c;
             j++;
         }
-
-        // If '(', push to stack
         else if (c == '(') {
             push(c);
         }
-
-        // If ')', pop until '('
         else if (c == ')') {
             while (!isEmpty() && peek() != '(') {
                 postfix[j] = pop();
                 j++;
             }
-            pop(); // remove '('
+            pop();
         }
-
-        // If operator
         else {
-            while (!isEmpty() && precedence(peek()) >= precedence(c)) {
-                postfix[j] = pop();
-                j++;
+            if (c == '^') {
+                while (!isEmpty() && precedence(peek()) > precedence(c)) {
+                    postfix[j] = pop();
+                    j++;
+                }
+            } 
+            else { 
+                while (!isEmpty() && precedence(peek()) >= precedence(c)) {
+                    postfix[j] = pop();
+                    j++;
+                }
             }
             push(c);
         }
     }
 
-    // Pop all remaining operators
     while (!isEmpty()) {
         postfix[j] = pop();
         j++;
     }
 
-    postfix[j] = '\0';  // null-terminate the string
+    postfix[j] = '\0';
 }
 
-// Evaluate Postfix Expression
 int evaluatePostfix(char postfix[]) {
     int stack2[MAX];
     int top2 = -1;
@@ -103,9 +100,9 @@ int evaluatePostfix(char postfix[]) {
         char c = postfix[i];
 
         if (isdigit(c)) {
-            int num = c - '0';           // convert char to int
+            int num = c - '0';
             top2++;
-            stack2[top2] = num;          // push number to stack2
+            stack2[top2] = num;
         } 
         else {
             int b = stack2[top2];
@@ -124,7 +121,7 @@ int evaluatePostfix(char postfix[]) {
             }
 
             top2++;
-            stack2[top2] = result;       // push result back to stack
+            stack2[top2] = result;
         }
     }
 
@@ -134,7 +131,7 @@ int evaluatePostfix(char postfix[]) {
 int main() {
     char infix[MAX], postfix[MAX];
 
-    printf("Enter an infix expression (use digits only): ");
+    printf("Enter an infix expression (use single digits only): ");
     scanf("%s", infix);
 
     infixToPostfix(infix, postfix);

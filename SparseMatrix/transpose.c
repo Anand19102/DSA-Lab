@@ -10,7 +10,6 @@ void transpose(struct Term sparse[], struct Term transpose[]) {
     int i, j, n;
     n = sparse[0].value; // number of non-zero elements
 
-    // Step 1: Metadata for transpose
     transpose[0].row = sparse[0].col;
     transpose[0].col = sparse[0].row;
     transpose[0].value = sparse[0].value;
@@ -64,3 +63,34 @@ int main() {
 
     return 0;
 }
+
+/*
+    Steps:
+Read the sparse[] array, including metadata and non-zero elements.
+
+Initialize the first element (transpose[0]) of transposed matrix:
+
+transpose[0].row = sparse[0].col
+
+transpose[0].col = sparse[0].row
+
+transpose[0].value = sparse[0].value
+
+For each column i (0 to number of columns - 1) of the original matrix:
+
+For each non-zero element (from index 1 to n):
+
+If the column index j of the element is i:
+
+Create a new entry in transpose[]:
+
+transpose[k].row = sparse[j].col
+
+transpose[k].col = sparse[j].row
+
+transpose[k].value = sparse[j].value
+
+Increment k.
+
+End
+*/

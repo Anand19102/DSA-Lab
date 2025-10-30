@@ -4,7 +4,6 @@
 #define MAX 100
 #define INF 9999
 
-// Directions: up, down, left, right
 int dirRow[] = {-1, 1, 0, 0};
 int dirCol[] = {0, 0, -1, 1};
 
@@ -15,19 +14,16 @@ struct Node {
 struct Node queue[MAX*MAX];
 int front = 0, rear = -1;
 
-// Enqueue
 void enqueue(int x, int y) {
     rear++;
     queue[rear].x = x;
     queue[rear].y = y;
 }
 
-// Dequeue
 struct Node dequeue() {
     return queue[front++];
 }
 
-// Check if a cell is safe to visit
 int isValid(int x, int y, int n, int m) {
     return (x >= 0 && x < n && y >= 0 && y < m);
 }
@@ -43,13 +39,11 @@ int main() {
     for (int i=0; i<n; i++)
         for (int j=0; j<m; j++)
             scanf("%d", &maze[i][j]);
-    
-    // Initialize distances
+
     for (int i=0; i<n; i++)
         for (int j=0; j<m; j++)
             dist[i][j] = INF;
-    
-    // Push all mines into the queue
+ 
     for (int i=0; i<n; i++)
         for (int j=0; j<m; j++) {
             if (maze[i][j] == -1) {
@@ -58,7 +52,6 @@ int main() {
             }
         }
     
-    // Multi-source BFS
     while (front <= rear) {
         struct Node temp = dequeue();
         int x = temp.x;

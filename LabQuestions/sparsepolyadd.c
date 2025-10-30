@@ -1,32 +1,29 @@
 #include <stdio.h>
 
-// Defines the structure for a single term of a polynomial
 struct Term {
-    int coeff; // Coefficient
-    int expo;  // Exponent
+    int coeff;
+    int expo;
 };
 
-// Function to add two polynomials
 void addPolynomials(struct Term poly1[], int n1, struct Term poly2[], int n2, struct Term polyResult[], int *nResult) {
-    int i = 0, j = 0, k = 0; // Pointers for poly1, poly2, and the result array
+    int i = 0, j = 0, k = 0;
 
-    // Loop through both polynomials as long as there are terms in both
     while (i < n1 && j < n2) {
-        // If exponents are the same, add coefficients
         if (poly1[i].expo == poly2[j].expo) {
-            polyResult[k].coeff = poly1[i].coeff + poly2[j].coeff;
+        int sum_coeff = poly1[i].coeff + poly2[j].coeff;
+        if (sum_coeff != 0) {
+            polyResult[k].coeff = sum_coeff;
             polyResult[k].expo = poly1[i].expo;
-            i++;
-            j++;
             k++;
+}
+        i++;
+        j++;
         }
-        // If exponent of poly1 is greater, copy its term
         else if (poly1[i].expo > poly2[j].expo) {
             polyResult[k] = poly1[i];
             i++;
             k++;
         }
-        // If exponent of poly2 is greater, copy its term
         else {
             polyResult[k] = poly2[j];
             j++;
@@ -34,28 +31,26 @@ void addPolynomials(struct Term poly1[], int n1, struct Term poly2[], int n2, st
         }
     }
 
-    // Copy any remaining terms from the first polynomial
+    // Copy remaining terms of poly1
     while (i < n1) {
         polyResult[k] = poly1[i];
         i++;
         k++;
     }
 
-    // Copy any remaining terms from the second polynomial
+    // Copy remaining terms of poly2
     while (j < n2) {
         polyResult[k] = poly2[j];
         j++;
         k++;
     }
 
-    *nResult = k; // Set the total number of terms in the result
+    *nResult = k; // Total number of terms in result
 }
 
-// Function to display a polynomial in a readable format
 void displayPolynomial(struct Term poly[], int n) {
     for (int i = 0; i < n; i++) {
         printf("%dx^%d", poly[i].coeff, poly[i].expo);
-        // Add a " + " sign between terms, but not after the last one
         if (i != n - 1) {
             printf(" + ");
         }
@@ -63,36 +58,29 @@ void displayPolynomial(struct Term poly[], int n) {
     printf("\n");
 }
 
-// The main function to drive the program
 int main() {
-    // First polynomial: 5x^3 + 4x^2 + 2
     struct Term poly1[] = { {5, 3}, {4, 2}, {2, 0} };
-    int n1 = 3; // Number of terms in poly1
-
-    // Second polynomial: 5x^2 + 5x^1 + 5
     struct Term poly2[] = { {5, 2}, {5, 1}, {5, 0} };
-    int n2 = 3; // Number of terms in poly2
-
-    // Array to store the resulting polynomial
-    struct Term polyResult[20]; // Assuming max 20 terms in the result
+    struct Term polyResult[20];
     int nResult;
 
-    // Display the input polynomials
+    int n1 = 3; // Number of terms in poly1
+    int n2 = 3; // Number of terms in poly2
+
     printf("First Polynomial: ");
     displayPolynomial(poly1, n1);
 
     printf("Second Polynomial: ");
     displayPolynomial(poly2, n2);
 
-    // Call the function to perform the addition
     addPolynomials(poly1, n1, poly2, n2, polyResult, &nResult);
 
-    // Display the sum
     printf("Sum of Polynomials: ");
     displayPolynomial(polyResult, nResult);
 
     return 0;
 }
+
 
 //NOW IF WE HAVE TO TAKE INPUT FROM THE USER
 
@@ -182,3 +170,41 @@ int main() {
 
     return 0;
 } */
+
+/* Steps:
+
+
+Initialize three pointers (indexes):
+i = 0 for first polynomial (poly1),
+j = 0 for second polynomial (poly2),
+k = 0 for result polynomial (polyResult).
+
+Repeat while both i and j are within their respective array sizes:
+
+If poly1[i].expo == poly2[j].expo:
+
+Add their coefficients.
+
+Store the sum and the common exponent in polyResult[k].
+
+Increment i, j, and k.
+
+Else if poly1[i].expo > poly2[j].expo:
+
+Copy poly1[i] to polyResult[k].
+
+Increment i and k.
+
+Else:
+
+Copy poly2[j] to polyResult[k].
+
+Increment j and k.
+
+Copy any remaining terms from poly1 (if any) to polyResult.
+
+Copy any remaining terms from poly2 (if any) to polyResult.
+
+Done.
+
+*/
